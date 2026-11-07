@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carteirinha Digital - Sindicato</title>
+    <!-- FontAwesome para Ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-blue: #0b4f6c;
+            --light-blue: #e0f2fe;
+            --accent-blue: #01baef;
+            --bg-color: #f0f4f8;
+            --card-bg: #dff9fb;
+            --text-dark: #2d3748;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        header h1 {
+            font-size: 1.3rem;
+            color: var(--primary-blue);
+            margin-bottom: 5px;
+        }
+
+        header p {
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background: #fff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            position: relative;
+        }
+
+        /* Botão Admin Flutuante */
+        .btn-admin-access {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: var(--primary-blue);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .btn-admin-access:hover {
+            transform: scale(1.1);
+        }
+
+        /* Área de Busca */
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary-blue);
+        }
+
+        .search-box button {
+            background-color: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 0 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .search-box button:hover {
+            background-color: #09394f;
+        }
+
+        /* Estilo da Carteirinha (Frente e Verso) */
+        .carteirinha-wrapper {
+            display: none;
+            margin-top: 20px;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .nav-tabs button {
+            padding: 8px 16px;
+            border: none;
+            background: #e2e8f0;
+            color: #475569;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .nav-tabs button.active {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .card-face {
+            background-color: var(--card-bg);
+            border: 3px solid var(--primary-blue);
+            border-radius: 10px;
+            padding: 15px;
+            width: 100%;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            position: relative;
+            display: none;
+        }
+
+        .card-face.active-face {
+            display: block;
+        }
+
+        /* Frente da Carteirinha */
+        .card-header {
+            text-align: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: var(--primary-blue);
+            border-bottom: 2px solid var(--primary-blue);
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+            position: relative;
+            line-height: 1.2;
+        }
+
+        .card-header img.logo-right {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 40px;
+            height: 40px;
+        }
+
+        .card-body {
+            display: flex;
+            gap: 12px;
+        }
+
+        .foto-container {
+            width: 100px;
+            height: 125px;
+            border: 2px solid var(--primary-blue);
+            background: #fff;
+            border-radius: 4px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .foto-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .info-container {
+            flex: 1;
+            font-size: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .info-row span.label {
+            font-weight: bold;
+            color: #1e293b;
+        }
+
+        .card-footer {
+            margin-top: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            font-size: 0.7rem;
+            border-top: 1px dashed #94a3b8;
+            padding-top: 6px;
+        }
+
+        .assinatura {
+            text-align: center;
+            width: 120px;
+        }
+
+        .assinatura .linha-assinatura {
+            border-top: 1px solid #334155;
+            margin-bottom: 2px;
+        }
+
+        /* Verso da Carteirinha (Dependentes) */
+        .verso-title {
+            text-align: center;
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: var(--primary-blue);
+            margin-bottom: 10px;
+            border-bottom: 2px solid var(--primary-blue);
+            padding-bottom: 5px;
+        }
+
+        table.dependents-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.75rem;
+            background: #fff;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        table.dependents-table th, table.dependents-table td {
+            border: 1px solid #cbd5e1;
+            padding: 6px 8px;
+            text-align: left;
+        }
+
+        table.dependents-table th {
+            background-color: var(--primary-blue);
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Regras de cores para idade dos dependentes */
+        .status-verde { color: #15803d; font-weight: bold; }
+        .status-amarelo { background-color: #fef08a !important; color: #854d0e; font-weight: bold; }
+        .status-vermelho { background-color: #fee2e2 !important; color: #991b1b; font-weight: bold; }
+
+        /* Modal / Painel Admin */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 15px;
+        }
+
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-width: 550px;
+            border-radius: 12px;
+            padding: 20px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+
+        .modal-header h2 {
+            font-size: 1.1rem;
+            color: var(--primary-blue);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: #64748b;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #334155;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn-whatsapp {
+            background: #25d366;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            margin-top: 5px;
+        }
+
+        .admin-actions-list {
+            margin-top: 15px;
+        }
+
+        .assoc-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 10px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.85rem;
+        }
+
+        .btn-delete {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .loading {
+            text-align: center;
+            color: #64748b;
+            font-style: italic;
+            margin: 15px 0;
+            display: none;
+        }
+
+        .msg-aviso {
+            text-align: center;
+            color: #ef4444;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Sindicato dos Trabalhadores nas Indústrias Metalúrgicas</h1>
+        <p>Mecânicas e de Material Elétrico de Cruzeiro</p>
+    </header>
+
+    <div class="container">
+        <!-- Botão Engrenagem para Painel Admin -->
+        <button class="btn-admin-access" onclick="abrirLoginAdmin()" title="Painel Administrativo">
+            <i class="fas fa-cog"></i>
+        </button>
+
+        <h3 style="font-size: 1rem; margin-bottom: 10px; color: #334155;">Consulta de Carteirinha</h3>
+      
+        <div class="search-box">
+            <input type="text" id="inputChapa" placeholder="Digite sua Chapa (Ex: 302775)">
+            <button onclick="buscarCarteirinha()">Buscar</button>
+        </div>
+
+        <div id="loading" class="loading">Consultando banco de dados...</div>
+        <div id="msgAviso" class="msg-aviso"></div>
+
+        <!-- Estrutura da Carteirinha Digital -->
+        <div id="carteirinhaWrapper" class="carteirinha-wrapper">
+            <div class="nav-tabs">
+                <button id="btnFrente" class="active" onclick="mudarFace('frente')">Frente</button>
+                <button id="btnVerso" onclick="mudarFace('verso')">Verso (Dependentes)</button>
+            </div>
+
+            <!-- FRENTE -->
+            <div id="faceFrente" class="card-face active-face">
+                <div class="card-header">
+                    Sindicato dos trabalhadores nas Indústrias<br>Metalúrgicas, Mecânicas e de Material Elétrico de Cruzeiro
+                    <!-- Ícone Brasão Simulado -->
+                    <i class="fas fa-shield-alt logo-right" style="font-size: 32px; color: var(--primary-blue); opacity: 0.8;"></i>
+                </div>
+                <div class="card-body">
+                    <div class="foto-container">
+                        <img id="fFoto" src="" alt="Foto Sócio" onerror="this.src='https://via.placeholder.com/100x125?text=Sem+Foto'">
+                    </div>
+                    <div class="info-container">
+                        <div class="info-row"><span>Matrícula:</span> <span id="fMatricula">-</span></div>
+                        <div class="info-row" style="flex-direction: column;">
+                            <span class="label">Nome:</span>
+                            <span id="fNome" style="font-weight: bold; font-size: 0.8rem;">-</span>
+                        </div>
+                        <div class="info-row"><span>CPF:</span> <span id="fCpf">-</span></div>
+                        <div class="info-row"><span>Chapa:</span> <span id="fChapa" style="font-weight: bold;">-</span></div>
+                        <div class="info-row"><span>Ct. Trabalho:</span> <span id="fCtps">-</span> <span style="margin-left: 5px;">Série: <span id="fSerie">-</span></span></div>
+                        <div class="info-row"><span>Nacional.:</span> <span id="fNacionalidade">-</span></div>
+                        <div class="info-row"><span>Emp.:</span> <span id="fEmpresa">-</span></div>
+                        <div class="info-row"><span>Dt. Assoc.:</span> <span id="fDtAssoc">-</span> <span style="margin-left: 5px;">Dt. Adm.: <span id="fDtAdm">-</span></span></div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <span style="font-size: 0.6rem; color: #475569;">Documento digital oficial</span>
+                    <div class="assinatura">
+                        <div class="linha-assinatura"></div>
+                        <span>Presidente</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VERSO -->
+            <div id="faceVerso" class="card-face">
+                <div class="verso-title">Dependentes</div>
+                <table class="dependents-table">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Parentesco</th>
+                            <th>Nascimento</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelaDependentesCorpo">
+                        <!-- Preenchido via JS -->
+                    </tbody>
+                </table>
+                <div style="font-size: 0.65rem; margin-top: 10px; color: #475569; text-align: center;">
+                    * Verde: Ativo | Amarelo: Vence em < 1 ano (17 anos) | Vermelho: Vencido (18+ anos para filhos/enteados)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL LOGIN ADMIN -->
+    <div id="modalLogin" class="modal">
+        <div class="modal-content" style="max-width: 350px;">
+            <div class="modal-header">
+                <h2>Acesso Restrito (Admin)</h2>
+                <button class="close-modal" onclick="fecharModal('modalLogin')">&times;</button>
+            </div>
+            <div class="form-group">
+                <label>Digite o PIN de Administrador:</label>
+                <input type="password" id="inputPin" placeholder="PIN numérico">
+            </div>
+            <button class="btn-primary" onclick="verificarPin()">Entrar no Painel</button>
+        </div>
+    </div>
+
+    <!-- MODAL PAINEL ADMINISTRATIVO -->
+    <div id="modalAdmin" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Painel Administrativo do Sindicato</h2>
+                <button class="close-modal" onclick="fecharModal('modalAdmin')">&times;</button>
+            </div>
+          
+            <h3 style="font-size: 0.95rem; color: var(--primary-blue); margin-bottom: 10px;">Cadastrar Novo Sócio</h3>
+            <form id="formCadastro" onsubmit="salvarSocio(event)">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div class="form-group"><label>Chapa:</label><input type="text" id="cChapa" required></div>
+                    <div class="form-group"><label>Matrícula:</label><input type="text" id="cMatricula"></div>
+                </div>
+                <div class="form-group"><label>Nome Completo:</label><input type="text" id="cNome" required></div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div class="form-group"><label>CPF:</label><input type="text" id="cCpf"></div>
+                    <div class="form-group"><label>Empresa:</label><input type="text" id="cEmpresa"></div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div class="form-group"><label>Carteira de Trabalho:</label><input type="text" id="cCtps"></div>
+                    <div class="form-group"><label>Série:</label><input type="text" id="cSerie"></div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div class="form-group"><label>Nacionalidade:</label><input type="text" id="cNacionalidade" value="Brasileira"></div>
+                    <div class="form-group"><label>Data Associação:</label><input type="date" id="cDtAssoc"></div>
+                </div>
+                <div class="form-group"><label>Data Admissão:</label><input type="date" id="cDtAdm"></div>
+                <div class="form-group">
+                    <label>URL da Foto (Hospedada):</label>
+                    <input type="text" id="cUrlFoto" placeholder="Cole o link da imagem aqui">
+                    <a id="linkZapFoto" href="#" target="_blank" class="btn-whatsapp">
+                        <i class="fab fa-whatsapp"></i> Enviar Foto para o WhatsApp do Gustavo
+                    </a>
+                </div>
+
+                <hr style="margin: 15px 0; border: 0; border-top: 1px solid #cbd5e1;">
+                <h4 style="font-size: 0.9rem; margin-bottom: 8px;">Dependentes (Opcional)</h4>
+                <div id="listaDependentesAdmin">
+                    <div class="dep-row" style="display: flex; gap: 5px; margin-bottom: 8px;">
+                        <input type="text" placeholder="Nome do Dependente" class="dep-nome" style="flex:2;">
+                        <input type="text" placeholder="Parentesco" class="dep-parentesco" style="flex:1;">
+                        <input type="date" class="dep-nascimento" style="flex:1.2;">
+                    </div>
+                </div>
+                <button type="button" onclick="adicionarCampoDependente()" style="background: #64748b; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; cursor: pointer; margin-bottom: 10px;">+ Adicionar outro dependente</button>
+
+                <button type="submit" class="btn-primary">Salvar Sócio e Dependentes</button>
+            </form>
+
+            <hr style="margin: 20px 0; border: 0; border-top: 2px solid #cbd5e1;">
+          
+            <h3 style="font-size: 0.95rem; color: #ef4444; margin-bottom: 10px;">Gerenciar / Dar Baixa (Exclusão)</h3>
+            <div class="search-box" style="margin-bottom: 10px;">
+                <input type="text" id="buscaAdmin" placeholder="Filtrar sócios..." oninput="filtrarListaAdmin()">
+            </div>
+            <div id="listaSociosAdmin" class="admin-actions-list" style="max-height: 200px; overflow-y: auto;">
+                <!-- Lista carregada via API -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // URL DO SEU GOOGLE APPS SCRIPT (WEB APP)
+        const URL_API = "https://script.google.com/macros/s/AKfycbxVRlpPh2kB7WPCZrBjAUbobUgk9vjdYs7uwC92z9nj1Zn7i5PxXeJlNef8NpJZmMv7/exec";
+        let whatsappSuporte = "5512999999999"; // Valor padrão, atualizado pela API
+        let todosSociosCache = [];
+
+        // 1. BUSCAR CARTEIRINHA PELO SÓCIO
+        async function buscarCarteirinha() {
+            const chapa = document.getElementById('inputChapa').value.trim();
+            const loading = document.getElementById('loading');
+            const msgAviso = document.getElementById('msgAviso');
+            const wrapper = document.getElementById('carteirinhaWrapper');
+
+            if (!chapa) {
+                alert("Por favor, digite o número da chapa.");
+                return;
+            }
+
+            loading.style.display = "block";
+            msgAviso.innerHTML = "";
+            wrapper.style.display = "none";
+
+            try {
+                const response = await fetch(URL_API, {
+                    method: "POST",
+                    body: JSON.stringify({ acao: "buscar", chapa: chapa })
+                });
+                const resultado = await response.json();
+                loading.style.display = "none";
+
+                if (resultado.sucesso) {
+                    const s = resultado.socio;
+                    if(resultado.config && resultado.config.WHATSAPP_SUPORTE_FOTO) {
+                        whatsappSuporte = resultado.config.WHATSAPP_SUPORTE_FOTO;
+                    }
+
+                    // Preenche dados da Frente (com limpeza de datas da frente se houver)
+                    document.getElementById('fMatricula').innerText = s.matricula || "-";
+                    document.getElementById('fNome').innerText = s.nome || "-";
+                    document.getElementById('fCpf').innerText = s.cpf || "-";
+                    document.getElementById('fChapa').innerText = s.chapa || "-";
+                    document.getElementById('fCtps').innerText = s.carteiraTrabalho || "-";
+                    document.getElementById('fSerie').innerText = s.serie || "-";
+                    document.getElementById('fNacionalidade').innerText = s.nacionalidade || "-";
+                    document.getElementById('fEmpresa').innerText = s.empresa || "-";
+                    document.getElementById('fDtAssoc').innerText = formatarDataBR(s.dtAssoc);
+                    document.getElementById('fDtAdm').innerText = formatarDataBR(s.dtAdm);
+                    document.getElementById('fFoto').src = s.urlFoto || "https://via.placeholder.com/100x125?text=Sem+Foto";
+
+                    // Preenche Verso (Dependentes) com regras de idade e tratamento de data limpa
+                    const tbody = document.getElementById('tabelaDependentesCorpo');
+                    tbody.innerHTML = "";
+
+                    if (s.dependentes && s.dependentes.length > 0) {
+                        s.dependentes.forEach(dep => {
+                            const tr = document.createElement('tr');
+                            const idadeStatus = calcularStatusIdade(dep.dataNascimento, dep.parentesco);
+                          
+                            tr.innerHTML = `
+                                <td>${dep.nome}</td>
+                                <td>${dep.parentesco}</td>
+                                <td class="${idadeStatus.classe}">${formatarDataBR(dep.dataNascimento)} <br><small>${idadeStatus.texto}</small></td>
+                            `;
+                            tbody.appendChild(tr);
+                        });
+                    } else {
+                        tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#64748b;">Nenhum dependente cadastrado.</td></tr>`;
+                    }
+
+                    wrapper.style.display = "block";
+                    mudarFace('frente');
+                } else {
+                    msgAviso.innerHTML = resultado.mensagem || "Sócio não cadastrado ou chapa não encontrada.";
+                }
+            } catch (error) {
+                loading.style.display = "none";
+                msgAviso.innerHTML = "Erro ao conectar com o servidor. Tente novamente.";
+                console.error(error);
+            }
+        }
+
+        // Função robusta para limpar sujeiras de data e isolar YYYY-MM-DD
+        function tratarDataInput(dataStr) {
+            if (!dataStr) return "";
+            let s = String(dataStr).trim();
+            // Se vier com o formato ISO completo (ex: 2007-07-21T03:00:00.000Z ou barras bugadas)
+            if (s.includes('T')) {
+                s = s.split('T')[0];
+            }
+            // Se vier grudado com lixo ou barras extras
+            const match = s.match(/(\d{4})-(\d{2})-(\d{2})/);
+            if (match) {
+                return `${match[1]}-${match[2]}-${match[3]}`;
+            }
+            const matchBR = s.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+            if (matchBR) {
+                return `${matchBR[3]}-${matchBR[2]}-${matchBR[1]}`;
+            }
+            return s;
+        }
+
+        // Cálculo de Idade e Cores restrito a Filhos/Enteados
+        function calcularStatusIdade(dataNascStr, parentescoStr) {
+            if (!dataNascStr) return { classe: '', texto: '' };
+          
+            const dataLimpa = tratarDataInput(dataNascStr);
+            let partes;
+            let nascimento;
+
+            if (dataLimpa.includes('-')) {
+                partes = dataLimpa.split('-');
+                nascimento = new Date(partes[0], partes[1] - 1, partes[2]);
+            } else if (dataNascStr.includes('/')) {
+                partes = dataNascStr.split('/');
+                nascimento = new Date(partes[2], partes[1] - 1, partes[0]);
+            } else {
+                nascimento = new Date(dataNascStr);
+            }
+
+            if (isNaN(nascimento.getTime())) return { classe: '', texto: '' };
+
+            const hoje = new Date();
+            let idade = hoje.getFullYear() - nascimento.getFullYear();
+            const m = hoje.getMonth() - nascimento.getMonth();
+            if (m < 0 || (m === 0 && hoje.getDate() < nascimento.getDate())) {
+                idade--;
+            }
+
+            // Verifica se é cônjuge (esposa/marido) para ignorar o bloqueio de 18 anos
+            const pLower = (parentescoStr || "").toLowerCase();
+            const ehConjuge = pLower.includes('esposa') || pLower.includes('marido') || pLower.includes('cônjuge') || pLower.includes('esposo');
+
+            if (ehConjuge) {
+                return { classe: 'status-verde', texto: `(${idade} anos)` };
+            }
+
+            // Calcula dias exatos para o aniversário de 18 anos (apenas para filhos/enteados)
+            const aniversario18 = new Date(nascimento.getFullYear() + 18, nascimento.getMonth(), nascimento.getDate());
+            const diffDias = Math.ceil((aniversario18 - hoje) / (1000 * 60 * 60 * 24));
+
+            if (idade >= 18) {
+                return { classe: 'status-vermelho', texto: '(18+ anos - Vencido)' };
+            } else if (diffDias <= 365 && diffDias >= 0) {
+                return { classe: 'status-amarelo', texto: `(Vence em ${Math.ceil(diffDias/30)} meses)` };
+            } else {
+                return { classe: 'status-verde', texto: `(${idade} anos)` };
+            }
+        }
+
+        function formatarDataBR(dataStr) {
+            if (!dataStr) return "-";
+            const limpa = tratarDataInput(dataStr);
+            if (limpa.includes('-')) {
+                const p = limpa.split('-');
+                return `${p[2]}/${p[1]}/${p[0]}`;
+            }
+            return dataStr;
+        }
+
+        // Alternar abas Frente / Verso
+        function mudarFace(face) {
+            const btnF = document.getElementById('btnFrente');
+            const btnV = document.getElementById('btnVerso');
+            const faceF = document.getElementById('faceFrente');
+            const faceV = document.getElementById('faceVerso');
+
+            if (face === 'frente') {
+                btnF.classList.add('active');
+                btnV.classList.remove('active');
+                faceF.classList.add('active-face');
+                faceV.classList.remove('active-face');
+            } else {
+                btnV.classList.add('active');
+                btnF.classList.remove('active');
+                faceV.classList.add('active-face');
+                faceF.classList.remove('active-face');
+            }
+        }
+
+        // 2. PAINEL ADMINISTRATIVO E LOGIN
+        function abrirLoginAdmin() {
+            document.getElementById('inputPin').value = "";
+            document.getElementById('modalLogin').style.display = "flex";
+        }
+
+        async function verificarPin() {
+            const pin = document.getElementById('inputPin').value.trim();
+            if (!pin) return alert("Digite o PIN.");
+
+            try {
+                const response = await fetch(URL_API, {
+                    method: "POST",
+                    body: JSON.stringify({ acao: "login", pin: pin })
+                });
+                const res = await response.json();
+
+                if (res.autorizado) {
+                    fecharModal('modalLogin');
+                    abrirPainelAdmin();
+                } else {
+                    alert(res.mensagem || "PIN incorreto!");
+                }
+            } catch (e) {
+                alert("Erro ao validar PIN.");
+            }
+        }
+
+        async function abrirPainelAdmin() {
+            document.getElementById('modalAdmin').style.display = "flex";
+            atualizarLinkWhatsApp();
+            carregarListaSociosAdmin();
+        }
+
+        function atualizarLinkWhatsApp() {
+            const nomeSocio = document.getElementById('cNome').value || "Novo Sócio";
+            const chapaSocio = document.getElementById('cChapa').value || "S/N";
+            const texto = encodeURIComponent(`Olá Gustavo, segue a foto para o cadastro do sócio ${nomeSocio}, Chapa: ${chapaSocio}.`);
+            document.getElementById('linkZapFoto').href = `https://wa.me/${whatsappSuporte}?text=${texto}`;
+        }
+
+        document.getElementById('cNome').addEventListener('input', atualizarLinkWhatsApp);
+        document.getElementById('cChapa').addEventListener('input', atualizarLinkWhatsApp);
+
+        function fecharModal(modalId) {
+            document.getElementById(modalId).style.display = "none";
+        }
+
+        function adicionarCampoDependente() {
+            const container = document.getElementById('listaDependentesAdmin');
+            const div = document.createElement('div');
+            div.className = "dep-row";
+            div.style.cssText = "display: flex; gap: 5px; margin-bottom: 8px;";
+            div.innerHTML = `
+                <input type="text" placeholder="Nome do Dependente" class="dep-nome" style="flex:2;">
+                <input type="text" placeholder="Parentesco" class="dep-parentesco" style="flex:1;">
+                <input type="date" class="dep-nascimento" style="flex:1.2;">
+            `;
+            container.appendChild(div);
+        }
+
+        // Cadastrar Sócio
+        async function salvarSocio(event) {
+            event.preventDefault();
+          
+            const dependentes = [];
+            document.querySelectorAll('.dep-row').forEach(row => {
+                const nome = row.querySelector('.dep-nome').value.trim();
+                const parentesco = row.querySelector('.dep-parentesco').value.trim();
+                const nasc = row.querySelector('.dep-nascimento').value;
+                if (nome) {
+                    dependentes.push({ nome, parentesco, dataNascimento: nasc });
+                }
+            });
+
+            const socio = {
+                chapa: document.getElementById('cChapa').value.trim(),
+                matricula: document.getElementById('cMatricula').value.trim(),
+                nome: document.getElementById('cNome').value.trim(),
+                cpf: document.getElementById('cCpf').value.trim(),
+                carteiraTrabalho: document.getElementById('cCtps').value.trim(),
+                serie: document.getElementById('cSerie').value.trim(),
+                nacionalidade: document.getElementById('cNacionalidade').value.trim(),
+                empresa: document.getElementById('cEmpresa').value.trim(),
+                dtAssoc: document.getElementById('cDtAssoc').value,
+                dtAdm: document.getElementById('cDtAdm').value,
+                urlFoto: document.getElementById('cUrlFoto').value.trim(),
+                dependentes: dependentes
+            };
+
+            try {
+                const response = await fetch(URL_API, {
+                    method: "POST",
+                    body: JSON.stringify({ acao: "cadastrar", socio: socio })
+                });
+                const res = await response.json();
+                alert(res.mensagem);
+                if (res.sucesso) {
+                    document.getElementById('formCadastro').reset();
+                    carregarListaSociosAdmin();
+                }
+            } catch (e) {
+                alert("Erro ao cadastrar sócio.");
+            }
+        }
+
+        // Listar Sócios para exclusão (Lixeirinha)
+        async function carregarListaSociosAdmin() {
+            try {
+                const response = await fetch(URL_API, {
+                    method: "POST",
+                    body: JSON.stringify({ acao: "listar" })
+                });
+                const res = await response.json();
+                if (res.sucesso) {
+                    todosSociosCache = res.socios;
+                    if(res.config && res.config.WHATSAPP_SUPORTE_FOTO) {
+                        whatsappSuporte = res.config.WHATSAPP_SUPORTE_FOTO;
+                    }
+                    renderizarListaSocios(todosSociosCache);
+                }
+            } catch (e) {
+                console.error("Erro ao listar sócios");
+            }
+        }
+
+        function renderizarListaSocios(lista) {
+            const container = document.getElementById('listaSociosAdmin');
+            container.innerHTML = "";
+
+            if (lista.length === 0) {
+                container.innerHTML = `<p style="text-align:center; color:#64748b; font-size:0.85rem;">Nenhum sócio encontrado.</p>`;
+                return;
+            }
+
+            lista.forEach(s => {
+                const div = document.createElement('div');
+                div.className = "assoc-item";
+                div.innerHTML = `
+                    <span><strong>Chapa: ${s.chapa}</strong> - ${s.nome} (${s.empresa || 'Sem empresa'})</span>
+                    <button class="btn-delete" onclick="deletarSocio('${s.chapa}', '${s.nome}')"><i class="fas fa-trash"></i></button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function filtrarListaAdmin() {
+            const termo = document.getElementById('buscaAdmin').value.toLowerCase();
+            const filtrados = todosSociosCache.filter(s =>
+                String(s.chapa).toLowerCase().includes(termo) ||
+                String(s.nome).toLowerCase().includes(termo)
+            );
+            renderizarListaSocios(filtrados);
+        }
+
+        async function deletarSocio(chapa, nome) {
+            if (!confirm(`Deseja realmente deletar permanentemente o associado ${nome} (Chapa ${chapa}) do convênio?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(URL_API, {
+                    method: "POST",
+                    body: JSON.stringify({ acao: "deletar", chapa: chapa })
+                });
+                const res = await response.json();
+                alert(res.mensagem);
+                if (res.sucesso) {
+                    carregarListaSociosAdmin();
+                }
+            } catch (e) {
+                alert("Erro ao excluir sócio.");
+            }
+        }
+    </script>
+</body>
+</html>
+
+ 
