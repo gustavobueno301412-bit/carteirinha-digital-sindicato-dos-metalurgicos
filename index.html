@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Carteirinha Digital - Sindicato</title>
-    <!-- FontAwesome para Ícones -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -61,7 +60,6 @@
             position: relative;
         }
 
-        /* Botão Admin Flutuante */
         .btn-admin-access {
             position: absolute;
             top: 20px;
@@ -77,11 +75,10 @@
             transform: scale(1.1);
         }
 
-        /* Área de Busca */
         .search-box {
             display: flex;
             gap: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .search-box input {
@@ -113,7 +110,15 @@
             background-color: #09394f;
         }
 
-        /* Estilo da Carteirinha (Frente e Verso) */
+        .divider-busca {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #64748b;
+            margin: 10px 0;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
         .carteirinha-wrapper {
             display: none;
             margin-top: 20px;
@@ -164,7 +169,6 @@
             display: block;
         }
 
-        /* Frente da Carteirinha */
         .card-header {
             text-align: center;
             font-size: 0.75rem;
@@ -244,7 +248,6 @@
             margin-bottom: 2px;
         }
 
-        /* Verso da Carteirinha (Dependentes) */
         .verso-title {
             text-align: center;
             font-size: 0.95rem;
@@ -276,12 +279,10 @@
             font-weight: 600;
         }
 
-        /* Regras de cores para idade dos dependentes */
         .status-verde { color: #15803d; font-weight: bold; }
         .status-amarelo { background-color: #fef08a !important; color: #854d0e; font-weight: bold; }
         .status-vermelho { background-color: #fee2e2 !important; color: #991b1b; font-weight: bold; }
 
-        /* Modal / Painel Admin */
         .modal {
             display: none;
             position: fixed;
@@ -420,16 +421,24 @@
     </header>
 
     <div class="container">
-        <!-- Botão Engrenagem para Painel Admin -->
         <button class="btn-admin-access" onclick="abrirLoginAdmin()" title="Painel Administrativo">
             <i class="fas fa-cog"></i>
         </button>
 
         <h3 style="font-size: 1rem; margin-bottom: 10px; color: #334155;">Consulta de Carteirinha</h3>
-      
+    
+        <!-- Busca por Sócio Titular (Chapa) -->
         <div class="search-box">
-            <input type="text" id="inputChapa" placeholder="Digite sua Chapa (Ex: 302775)">
-            <button onclick="buscarCarteirinha()">Buscar</button>
+            <input type="text" id="inputChapa" placeholder="Digite a Chapa do Titular (Ex: 302775)">
+            <button onclick="buscarCarteirinha()">Buscar Sócio</button>
+        </div>
+
+        <div class="divider-busca">Ou consulte pelo dependente</div>
+
+        <!-- Busca por Nome do Dependente -->
+        <div class="search-box">
+            <input type="text" id="inputNomeDependente" placeholder="Digite o Nome do Dependente">
+            <button onclick="buscarCarteirinhaDependente()">Buscar Dep.</button>
         </div>
 
         <div id="loading" class="loading">Consultando banco de dados...</div>
@@ -439,36 +448,25 @@
         <div id="carteirinhaWrapper" class="carteirinha-wrapper">
             <div class="nav-tabs">
                 <button id="btnFrente" class="active" onclick="mudarFace('frente')">Frente</button>
-                <button id="btnVerso" onclick="mudarFace('verso')">Verso (Dependentes)</button>
+                <button id="btnVerso" onclick="mudarFace('verso')">Verso</button>
             </div>
 
             <!-- FRENTE -->
             <div id="faceFrente" class="card-face active-face">
                 <div class="card-header">
-                    Sindicato dos trabalhadores nas Indústrias<br>Metalúrgicas, Mecânicas e de Material Elétrico de Cruzeiro
-                    <!-- Ícone Brasão Simulado -->
+                    <span id="tituloCabecalhoCard">Sindicato dos trabalhadores nas Indústrias<br>Metalúrgicas, Mecânicas e de Material Elétrico de Cruzeiro</span>
                     <i class="fas fa-shield-alt logo-right" style="font-size: 32px; color: var(--primary-blue); opacity: 0.8;"></i>
                 </div>
                 <div class="card-body">
                     <div class="foto-container">
-                        <img id="fFoto" src="" alt="Foto Sócio" onerror="this.src='https://via.placeholder.com/100x125?text=Sem+Foto'">
+                        <img id="fFoto" src="" alt="Foto" onerror="this.src='https://via.placeholder.com/100x125?text=Sem+Foto'">
                     </div>
-                    <div class="info-container">
-                        <div class="info-row"><span>Matrícula:</span> <span id="fMatricula">-</span></div>
-                        <div class="info-row" style="flex-direction: column;">
-                            <span class="label">Nome:</span>
-                            <span id="fNome" style="font-weight: bold; font-size: 0.8rem;">-</span>
-                        </div>
-                        <div class="info-row"><span>CPF:</span> <span id="fCpf">-</span></div>
-                        <div class="info-row"><span>Chapa:</span> <span id="fChapa" style="font-weight: bold;">-</span></div>
-                        <div class="info-row"><span>Ct. Trabalho:</span> <span id="fCtps">-</span> <span style="margin-left: 5px;">Série: <span id="fSerie">-</span></span></div>
-                        <div class="info-row"><span>Nacional.:</span> <span id="fNacionalidade">-</span></div>
-                        <div class="info-row"><span>Emp.:</span> <span id="fEmpresa">-</span></div>
-                        <div class="info-row"><span>Dt. Assoc.:</span> <span id="fDtAssoc">-</span> <span style="margin-left: 5px;">Dt. Adm.: <span id="fDtAdm">-</span></span></div>
+                    <div class="info-container" id="infoContainerCorpo">
+                        <!-- Conteúdo dinâmico preenchido via JS (Titular ou Dependente) -->
                     </div>
                 </div>
                 <div class="card-footer">
-                    <span style="font-size: 0.6rem; color: #475569;">Documento digital oficial</span>
+                    <span style="font-size: 0.6rem; color: #475569;" id="rodapeTipoCard">Documento digital oficial</span>
                     <div class="assinatura">
                         <div class="linha-assinatura"></div>
                         <span>Presidente</span>
@@ -478,21 +476,8 @@
 
             <!-- VERSO -->
             <div id="faceVerso" class="card-face">
-                <div class="verso-title">Dependentes</div>
-                <table class="dependents-table">
-                    <thead>
-                        <tr>
-                            <th>Nome</th>
-                            <th>Parentesco</th>
-                            <th>Nascimento</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabelaDependentesCorpo">
-                        <!-- Preenchido via JS -->
-                    </tbody>
-                </table>
-                <div style="font-size: 0.65rem; margin-top: 10px; color: #475569; text-align: center;">
-                    * Verde: Ativo | Amarelo: Vence em < 1 ano (17 anos) | Vermelho: Vencido (18+ anos para filhos/enteados)
+                <div id="versoConteudoArea">
+                    <!-- Se for Sócio, exibe a tabela de dependentes. Se for Dependente, exibe o verso azul escrito DEPENDENTE -->
                 </div>
             </div>
         </div>
@@ -520,7 +505,7 @@
                 <h2>Painel Administrativo do Sindicato</h2>
                 <button class="close-modal" onclick="fecharModal('modalAdmin')">&times;</button>
             </div>
-          
+        
             <h3 style="font-size: 0.95rem; color: var(--primary-blue); margin-bottom: 10px;">Cadastrar Novo Sócio</h3>
             <form id="formCadastro" onsubmit="salvarSocio(event)">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
@@ -542,7 +527,7 @@
                 </div>
                 <div class="form-group"><label>Data Admissão:</label><input type="date" id="cDtAdm"></div>
                 <div class="form-group">
-                    <label>URL da Foto (Hospedada):</label>
+                    <label>URL da Foto do Sócio:</label>
                     <input type="text" id="cUrlFoto" placeholder="Cole o link da imagem aqui">
                     <a id="linkZapFoto" href="#" target="_blank" class="btn-whatsapp">
                         <i class="fab fa-whatsapp"></i> Enviar Foto para o WhatsApp do Gustavo
@@ -550,12 +535,13 @@
                 </div>
 
                 <hr style="margin: 15px 0; border: 0; border-top: 1px solid #cbd5e1;">
-                <h4 style="font-size: 0.9rem; margin-bottom: 8px;">Dependentes (Opcional)</h4>
+                <h4 style="font-size: 0.9rem; margin-bottom: 8px;">Dependentes (Com Foto Individual)</h4>
                 <div id="listaDependentesAdmin">
-                    <div class="dep-row" style="display: flex; gap: 5px; margin-bottom: 8px;">
-                        <input type="text" placeholder="Nome do Dependente" class="dep-nome" style="flex:2;">
-                        <input type="text" placeholder="Parentesco" class="dep-parentesco" style="flex:1;">
+                    <div class="dep-row" style="display: flex; gap: 5px; margin-bottom: 8px; flex-wrap: wrap;">
+                        <input type="text" placeholder="Nome" class="dep-nome" style="flex:2; min-width: 120px;">
+                        <input type="text" placeholder="Parentesco" class="dep-parentesco" style="flex:1; min-width: 80px;">
                         <input type="date" class="dep-nascimento" style="flex:1.2;">
+                        <input type="text" placeholder="URL Foto Dependente" class="dep-urlfoto" style="flex:2; min-width: 150px;">
                     </div>
                 </div>
                 <button type="button" onclick="adicionarCampoDependente()" style="background: #64748b; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; cursor: pointer; margin-bottom: 10px;">+ Adicionar outro dependente</button>
@@ -564,24 +550,22 @@
             </form>
 
             <hr style="margin: 20px 0; border: 0; border-top: 2px solid #cbd5e1;">
-          
+        
             <h3 style="font-size: 0.95rem; color: #ef4444; margin-bottom: 10px;">Gerenciar / Dar Baixa (Exclusão)</h3>
             <div class="search-box" style="margin-bottom: 10px;">
                 <input type="text" id="buscaAdmin" placeholder="Filtrar sócios..." oninput="filtrarListaAdmin()">
             </div>
             <div id="listaSociosAdmin" class="admin-actions-list" style="max-height: 200px; overflow-y: auto;">
-                <!-- Lista carregada via API -->
             </div>
         </div>
     </div>
 
     <script>
-        // URL DO SEU GOOGLE APPS SCRIPT (WEB APP)
-        const URL_API = "https://script.google.com/macros/s/AKfycbxVRlpPh2kB7WPCZrBjAUbobUgk9vjdYs7uwC92z9nj1Zn7i5PxXeJlNef8NpJZmMv7/exec";
-        let whatsappSuporte = "5512999999999"; // Valor padrão, atualizado pela API
+        const URL_API = "https://script.google.com/macros/s/AKfycby5jOqTrCI4LIKYTDSre7IYioKjjufowd0cfn64id3QEw3v4LpU7M-BnpHPGTKucqBN/exec";
+        let whatsappSuporte = "5512992448264";
         let todosSociosCache = [];
 
-        // 1. BUSCAR CARTEIRINHA PELO SÓCIO
+        // 1. BUSCAR CARTEIRINHA DO TITULAR
         async function buscarCarteirinha() {
             const chapa = document.getElementById('inputChapa').value.trim();
             const loading = document.getElementById('loading');
@@ -589,10 +573,11 @@
             const wrapper = document.getElementById('carteirinhaWrapper');
 
             if (!chapa) {
-                alert("Por favor, digite o número da chapa.");
+                alert("Por favor, digite o número da chapa do titular.");
                 return;
             }
 
+            document.getElementById('inputNomeDependente').value = "";
             loading.style.display = "block";
             msgAviso.innerHTML = "";
             wrapper.style.display = "none";
@@ -611,79 +596,150 @@
                         whatsappSuporte = resultado.config.WHATSAPP_SUPORTE_FOTO;
                     }
 
-                    // Preenche dados da Frente (com limpeza de datas da frente se houver)
-                    document.getElementById('fMatricula').innerText = s.matricula || "-";
-                    document.getElementById('fNome').innerText = s.nome || "-";
-                    document.getElementById('fCpf').innerText = s.cpf || "-";
-                    document.getElementById('fChapa').innerText = s.chapa || "-";
-                    document.getElementById('fCtps').innerText = s.carteiraTrabalho || "-";
-                    document.getElementById('fSerie').innerText = s.serie || "-";
-                    document.getElementById('fNacionalidade').innerText = s.nacionalidade || "-";
-                    document.getElementById('fEmpresa').innerText = s.empresa || "-";
-                    document.getElementById('fDtAssoc').innerText = formatarDataBR(s.dtAssoc);
-                    document.getElementById('fDtAdm').innerText = formatarDataBR(s.dtAdm);
+                    // Renderiza Frente do Titular
                     document.getElementById('fFoto').src = s.urlFoto || "https://via.placeholder.com/100x125?text=Sem+Foto";
+                    document.getElementById('infoContainerCorpo').innerHTML = `
+                        <div class="info-row"><span>Matrícula:</span> <span>${s.matricula || "-"}</span></div>
+                        <div class="info-row" style="flex-direction: column;">
+                            <span class="label">Nome:</span>
+                            <span style="font-weight: bold; font-size: 0.8rem;">${s.nome || "-"}</span>
+                        </div>
+                        <div class="info-row"><span>CPF:</span> <span>${s.cpf || "-"}</span></div>
+                        <div class="info-row"><span>Chapa:</span> <span style="font-weight: bold;">${s.chapa || "-"}</span></div>
+                        <div class="info-row"><span>Ct. Trabalho:</span> <span>${s.carteiraTrabalho || "-"}</span> <span style="margin-left: 5px;">Série: <span>${s.serie || "-"}</span></span></div>
+                        <div class="info-row"><span>Nacional.:</span> <span>${s.nacionalidade || "-"}</span></div>
+                        <div class="info-row"><span>Emp.:</span> <span>${s.empresa || "-"}</span></div>
+                        <div class="info-row"><span>Dt. Assoc.:</span> <span>${formatarDataBR(s.dtAssoc)}</span> <span style="margin-left: 5px;">Dt. Adm.: <span>${formatarDataBR(s.dtAdm)}</span></span></div>
+                    `;
 
-                    // Preenche Verso (Dependentes) com regras de idade e tratamento de data limpa
-                    const tbody = document.getElementById('tabelaDependentesCorpo');
-                    tbody.innerHTML = "";
+                    // Renderiza Verso do Titular (Tabela de Dependentes)
+                    const areaVerso = document.getElementById('versoConteudoArea');
+                    let htmlDependentes = `
+                        <div class="verso-title">Dependentes</div>
+                        <table class="dependents-table">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Parentesco</th>
+                                    <th>Nascimento</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
 
                     if (s.dependentes && s.dependentes.length > 0) {
                         s.dependentes.forEach(dep => {
-                            const tr = document.createElement('tr');
                             const idadeStatus = calcularStatusIdade(dep.dataNascimento, dep.parentesco);
-                          
-                            tr.innerHTML = `
-                                <td>${dep.nome}</td>
-                                <td>${dep.parentesco}</td>
-                                <td class="${idadeStatus.classe}">${formatarDataBR(dep.dataNascimento)} <br><small>${idadeStatus.texto}</small></td>
+                            htmlDependentes += `
+                                <tr>
+                                    <td>${dep.nome}</td>
+                                    <td>${dep.parentesco}</td>
+                                    <td class="${idadeStatus.classe}">${formatarDataBR(dep.dataNascimento)} <br><small>${idadeStatus.texto}</small></td>
+                                </tr>
                             `;
-                            tbody.appendChild(tr);
                         });
                     } else {
-                        tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#64748b;">Nenhum dependente cadastrado.</td></tr>`;
+                        htmlDependentes += `<tr><td colspan="3" style="text-align:center; color:#64748b;">Nenhum dependente cadastrado.</td></tr>`;
                     }
+                    htmlDependentes += `</tbody></table>`;
+                    areaVerso.innerHTML = htmlDependentes;
 
                     wrapper.style.display = "block";
                     mudarFace('frente');
                 } else {
-                    msgAviso.innerHTML = resultado.mensagem || "Sócio não cadastrado ou chapa não encontrada.";
+                    msgAviso.innerHTML = resultado.mensagem || "Sócio não cadastrado.";
                 }
             } catch (error) {
                 loading.style.display = "none";
-                msgAviso.innerHTML = "Erro ao conectar com o servidor. Tente novamente.";
+                msgAviso.innerHTML = "Erro ao conectar com o servidor.";
                 console.error(error);
             }
         }
 
-        // Função robusta para limpar sujeiras de data e isolar YYYY-MM-DD
+        // 2. BUSCAR CARTEIRINHA DO DEPENDENTE PELO NOME
+        async function buscarCarteirinhaDependente() {
+            const nomeDep = document.getElementById('inputNomeDependente').value.trim();
+            const loading = document.getElementById('loading');
+            const msgAviso = document.getElementById('msgAviso');
+            const wrapper = document.getElementById('carteirinhaWrapper');
+
+            if (!nomeDep) {
+                alert("Por favor, digite o nome do dependente.");
+                return;
+            }
+
+            document.getElementById('inputChapa').value = "";
+            loading.style.display = "block";
+            msgAviso.innerHTML = "";
+            wrapper.style.display = "none";
+
+            try {
+                const response = await fetch(URL_API, {
+                    method: "POST",
+                    body: JSON.stringify({ acao: "buscar_dependente", nomeDependente: nomeDep })
+                });
+                const resultado = await response.json();
+                loading.style.display = "none";
+
+                if (resultado.sucesso) {
+                    const dep = resultado.dependente;
+                    const tit = resultado.titular;
+
+                    // Renderiza Frente da Carteirinha do Dependente (aproveita dados do titular + foto e nome do dependente)
+                    document.getElementById('fFoto').src = dep.urlFoto || "https://via.placeholder.com/100x125?text=Sem+Foto";
+                    document.getElementById('infoContainerCorpo').innerHTML = `
+                        <div class="info-row"><span>Matrícula:</span> <span>${tit.matricula || "-"}</span></div>
+                        <div class="info-row" style="flex-direction: column;">
+                            <span class="label">Funcionário:</span>
+                            <span style="font-size: 0.75rem;">${tit.nomeTitular || "-"}</span>
+                        </div>
+                        <div class="info-row"><span>Chapa:</span> <span style="font-weight: bold;">${tit.chapa || "-"}</span></div>
+                        <div class="info-row" style="flex-direction: column; background: #e0f2fe; padding: 2px 4px; border-radius: 4px; margin-top: 2px;">
+                            <span class="label" style="color: var(--primary-blue);">Dependente:</span>
+                            <span style="font-weight: bold; font-size: 0.8rem; color: #0b4f6c;">${dep.nome || "-"}</span>
+                        </div>
+                        <div class="info-row"><span>Parentesco:</span> <span style="font-weight: bold;">${dep.parentesco || "-"}</span></div>
+                        <div class="info-row"><span>Dt. Nasc.:</span> <span>${formatarDataBR(dep.dataNascimento)}</span></div>
+                        <div class="info-row"><span>Emp.:</span> <span>${tit.empresa || "-"}</span></div>
+                        <div class="info-row"><span>Dt. Assoc.:</span> <span>${formatarDataBR(tit.dtAssoc)}</span></div>
+                    `;
+
+                    // Renderiza Verso da Carteirinha do Dependente (Fundo limpo com a palavra DEPENDENTE)
+                    const areaVerso = document.getElementById('versoConteudoArea');
+                    areaVerso.innerHTML = `
+                        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 160px; background: #e0f2fe; border-radius: 6px; border: 2px dashed var(--primary-blue);">
+                            <h2 style="font-size: 1.8rem; color: var(--primary-blue); letter-spacing: 2px;">DEPENDENTE</h2>
+                            <p style="font-size: 0.8rem; color: #334155; margin-top: 5px;">Titular: ${tit.nomeTitular}</p>
+                        </div>
+                    `;
+
+                    wrapper.style.display = "block";
+                    mudarFace('frente');
+                } else {
+                    msgAviso.innerHTML = resultado.mensagem || "Dependente não encontrado.";
+                }
+            } catch (error) {
+                loading.style.display = "none";
+                msgAviso.innerHTML = "Erro ao conectar com o servidor.";
+                console.error(error);
+            }
+        }
+
         function tratarDataInput(dataStr) {
             if (!dataStr) return "";
             let s = String(dataStr).trim();
-            // Se vier com o formato ISO completo (ex: 2007-07-21T03:00:00.000Z ou barras bugadas)
-            if (s.includes('T')) {
-                s = s.split('T')[0];
-            }
-            // Se vier grudado com lixo ou barras extras
+            if (s.includes('T')) { s = s.split('T')[0]; }
             const match = s.match(/(\d{4})-(\d{2})-(\d{2})/);
-            if (match) {
-                return `${match[1]}-${match[2]}-${match[3]}`;
-            }
+            if (match) { return `${match[1]}-${match[2]}-${match[3]}`; }
             const matchBR = s.match(/(\d{2})\/(\d{2})\/(\d{4})/);
-            if (matchBR) {
-                return `${matchBR[3]}-${matchBR[2]}-${matchBR[1]}`;
-            }
+            if (matchBR) { return `${matchBR[3]}-${matchBR[2]}-${matchBR[1]}`; }
             return s;
         }
 
-        // Cálculo de Idade e Cores restrito a Filhos/Enteados
         function calcularStatusIdade(dataNascStr, parentescoStr) {
             if (!dataNascStr) return { classe: '', texto: '' };
-          
             const dataLimpa = tratarDataInput(dataNascStr);
-            let partes;
-            let nascimento;
-
+            let partes, nascimento;
             if (dataLimpa.includes('-')) {
                 partes = dataLimpa.split('-');
                 nascimento = new Date(partes[0], partes[1] - 1, partes[2]);
@@ -693,25 +749,17 @@
             } else {
                 nascimento = new Date(dataNascStr);
             }
-
             if (isNaN(nascimento.getTime())) return { classe: '', texto: '' };
 
             const hoje = new Date();
             let idade = hoje.getFullYear() - nascimento.getFullYear();
             const m = hoje.getMonth() - nascimento.getMonth();
-            if (m < 0 || (m === 0 && hoje.getDate() < nascimento.getDate())) {
-                idade--;
-            }
+            if (m < 0 || (m === 0 && hoje.getDate() < nascimento.getDate())) { idade--; }
 
-            // Verifica se é cônjuge (esposa/marido) para ignorar o bloqueio de 18 anos
             const pLower = (parentescoStr || "").toLowerCase();
-            const ehConjuge = pLower.includes('esposa') || pLower.includes('marido') || pLower.includes('cônjuge') || pLower.includes('esposo');
+            const ehConjuge = pLower.includes('esposa') || pLower.includes('marido') || pLower.includes('cônjuge');
+            if (ehConjuge) { return { classe: 'status-verde', texto: `(${idade} anos)` }; }
 
-            if (ehConjuge) {
-                return { classe: 'status-verde', texto: `(${idade} anos)` };
-            }
-
-            // Calcula dias exatos para o aniversário de 18 anos (apenas para filhos/enteados)
             const aniversario18 = new Date(nascimento.getFullYear() + 18, nascimento.getMonth(), nascimento.getDate());
             const diffDias = Math.ceil((aniversario18 - hoje) / (1000 * 60 * 60 * 24));
 
@@ -734,7 +782,6 @@
             return dataStr;
         }
 
-        // Alternar abas Frente / Verso
         function mudarFace(face) {
             const btnF = document.getElementById('btnFrente');
             const btnV = document.getElementById('btnVerso');
@@ -754,7 +801,6 @@
             }
         }
 
-        // 2. PAINEL ADMINISTRATIVO E LOGIN
         function abrirLoginAdmin() {
             document.getElementById('inputPin').value = "";
             document.getElementById('modalLogin').style.display = "flex";
@@ -763,23 +809,19 @@
         async function verificarPin() {
             const pin = document.getElementById('inputPin').value.trim();
             if (!pin) return alert("Digite o PIN.");
-
             try {
                 const response = await fetch(URL_API, {
                     method: "POST",
                     body: JSON.stringify({ acao: "login", pin: pin })
                 });
                 const res = await response.json();
-
                 if (res.autorizado) {
                     fecharModal('modalLogin');
                     abrirPainelAdmin();
                 } else {
                     alert(res.mensagem || "PIN incorreto!");
                 }
-            } catch (e) {
-                alert("Erro ao validar PIN.");
-            }
+            } catch (e) { alert("Erro ao validar PIN."); }
         }
 
         async function abrirPainelAdmin() {
@@ -806,26 +848,26 @@
             const container = document.getElementById('listaDependentesAdmin');
             const div = document.createElement('div');
             div.className = "dep-row";
-            div.style.cssText = "display: flex; gap: 5px; margin-bottom: 8px;";
+            div.style.cssText = "display: flex; gap: 5px; margin-bottom: 8px; flex-wrap: wrap;";
             div.innerHTML = `
-                <input type="text" placeholder="Nome do Dependente" class="dep-nome" style="flex:2;">
-                <input type="text" placeholder="Parentesco" class="dep-parentesco" style="flex:1;">
+                <input type="text" placeholder="Nome" class="dep-nome" style="flex:2; min-width: 120px;">
+                <input type="text" placeholder="Parentesco" class="dep-parentesco" style="flex:1; min-width: 80px;">
                 <input type="date" class="dep-nascimento" style="flex:1.2;">
+                <input type="text" placeholder="URL Foto Dependente" class="dep-urlfoto" style="flex:2; min-width: 150px;">
             `;
             container.appendChild(div);
         }
 
-        // Cadastrar Sócio
         async function salvarSocio(event) {
             event.preventDefault();
-          
             const dependentes = [];
             document.querySelectorAll('.dep-row').forEach(row => {
                 const nome = row.querySelector('.dep-nome').value.trim();
                 const parentesco = row.querySelector('.dep-parentesco').value.trim();
                 const nasc = row.querySelector('.dep-nascimento').value;
+                const urlFotoDep = row.querySelector('.dep-urlfoto').value.trim();
                 if (nome) {
-                    dependentes.push({ nome, parentesco, dataNascimento: nasc });
+                    dependentes.push({ nome, parentesco, dataNascimento: nasc, urlFoto: urlFotoDep });
                 }
             });
 
@@ -855,12 +897,9 @@
                     document.getElementById('formCadastro').reset();
                     carregarListaSociosAdmin();
                 }
-            } catch (e) {
-                alert("Erro ao cadastrar sócio.");
-            }
+            } catch (e) { alert("Erro ao cadastrar sócio."); }
         }
 
-        // Listar Sócios para exclusão (Lixeirinha)
         async function carregarListaSociosAdmin() {
             try {
                 const response = await fetch(URL_API, {
@@ -875,20 +914,16 @@
                     }
                     renderizarListaSocios(todosSociosCache);
                 }
-            } catch (e) {
-                console.error("Erro ao listar sócios");
-            }
+            } catch (e) { console.error("Erro ao listar sócios"); }
         }
 
         function renderizarListaSocios(lista) {
             const container = document.getElementById('listaSociosAdmin');
             container.innerHTML = "";
-
             if (lista.length === 0) {
                 container.innerHTML = `<p style="text-align:center; color:#64748b; font-size:0.85rem;">Nenhum sócio encontrado.</p>`;
                 return;
             }
-
             lista.forEach(s => {
                 const div = document.createElement('div');
                 div.className = "assoc-item";
@@ -910,10 +945,9 @@
         }
 
         async function deletarSocio(chapa, nome) {
-            if (!confirm(`Deseja realmente deletar permanentemente o associado ${nome} (Chapa ${chapa}) do convênio?`)) {
+            if (!confirm(`Deseja realmente deletar permanentemente o associado ${nome} (Chapa ${chapa})?`)) {
                 return;
             }
-
             try {
                 const response = await fetch(URL_API, {
                     method: "POST",
@@ -921,12 +955,8 @@
                 });
                 const res = await response.json();
                 alert(res.mensagem);
-                if (res.sucesso) {
-                    carregarListaSociosAdmin();
-                }
-            } catch (e) {
-                alert("Erro ao excluir sócio.");
-            }
+                if (res.sucesso) { carregarListaSociosAdmin(); }
+            } catch (e) { alert("Erro ao excluir sócio."); }
         }
     </script>
 </body>
