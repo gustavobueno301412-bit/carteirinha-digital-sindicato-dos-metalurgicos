@@ -426,7 +426,7 @@
         </button>
 
         <h3 style="font-size: 1rem; margin-bottom: 10px; color: #334155;">Consulta de Carteirinha</h3>
-    
+   
         <!-- Busca por Sócio Titular (Chapa) -->
         <div class="search-box">
             <input type="text" id="inputChapa" placeholder="Digite a Chapa do Titular (Ex: 302775)">
@@ -505,7 +505,7 @@
                 <h2>Painel Administrativo do Sindicato</h2>
                 <button class="close-modal" onclick="fecharModal('modalAdmin')">&times;</button>
             </div>
-        
+       
             <h3 style="font-size: 0.95rem; color: var(--primary-blue); margin-bottom: 10px;">Cadastrar Novo Sócio</h3>
             <form id="formCadastro" onsubmit="salvarSocio(event)">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
@@ -550,7 +550,7 @@
             </form>
 
             <hr style="margin: 20px 0; border: 0; border-top: 2px solid #cbd5e1;">
-        
+       
             <h3 style="font-size: 0.95rem; color: #ef4444; margin-bottom: 10px;">Gerenciar / Dar Baixa (Exclusão)</h3>
             <div class="search-box" style="margin-bottom: 10px;">
                 <input type="text" id="buscaAdmin" placeholder="Filtrar sócios..." oninput="filtrarListaAdmin()">
@@ -685,7 +685,16 @@
                     const dep = resultado.dependente;
                     const tit = resultado.titular;
 
-                    // Renderiza Frente da Carteirinha do Dependente (aproveita dados do titular + foto e nome do dependente)
+                    // Calcula a idade e status do dependente para exibir na carteirinha individual
+                    const idadeStatus = calcularStatusIdade(dep.dataNascimento, dep.parentesco);
+                   
+                    // Aviso visual se estiver vencido por idade (18+ anos)
+                    let avisoVencidoHtml = "";
+                    if (idadeStatus.classe === 'status-vermelho') {
+                        avisoVencidoHtml = `<div style="background: #fee2e2; color: #991b1b; padding: 2px 4px; border-radius: 4px; font-weight: bold; font-size: 0.7rem; text-align: center; margin-top: 2px;">⚠️ CARTEIRINHA VENCIDA (18+ ANOS)</div>`;
+                    }
+
+                    // Renderiza Frente da Carteirinha do Dependente
                     document.getElementById('fFoto').src = dep.urlFoto || "https://via.placeholder.com/100x125?text=Sem+Foto";
                     document.getElementById('infoContainerCorpo').innerHTML = `
                         <div class="info-row"><span>Matrícula:</span> <span>${tit.matricula || "-"}</span></div>
@@ -699,9 +708,10 @@
                             <span style="font-weight: bold; font-size: 0.8rem; color: #0b4f6c;">${dep.nome || "-"}</span>
                         </div>
                         <div class="info-row"><span>Parentesco:</span> <span style="font-weight: bold;">${dep.parentesco || "-"}</span></div>
+                        <div class="info-row"><span>Idade/Status:</span> <span class="${idadeStatus.classe}">${idadeStatus.texto}</span></div>
                         <div class="info-row"><span>Dt. Nasc.:</span> <span>${formatarDataBR(dep.dataNascimento)}</span></div>
                         <div class="info-row"><span>Emp.:</span> <span>${tit.empresa || "-"}</span></div>
-                        <div class="info-row"><span>Dt. Assoc.:</span> <span>${formatarDataBR(tit.dtAssoc)}</span></div>
+                        ${avisoVencidoHtml}
                     `;
 
                     // Renderiza Verso da Carteirinha do Dependente (Fundo limpo com a palavra DEPENDENTE)
@@ -710,6 +720,7 @@
                         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 160px; background: #e0f2fe; border-radius: 6px; border: 2px dashed var(--primary-blue);">
                             <h2 style="font-size: 1.8rem; color: var(--primary-blue); letter-spacing: 2px;">DEPENDENTE</h2>
                             <p style="font-size: 0.8rem; color: #334155; margin-top: 5px;">Titular: ${tit.nomeTitular}</p>
+                            <p style="font-size: 0.75rem;" class="${idadeStatus.classe}">Status: ${idadeStatus.texto}</p>
                         </div>
                     `;
 
